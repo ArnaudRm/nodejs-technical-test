@@ -19,7 +19,7 @@ describe('NodeJS Tests', () => {
         .post('/subscribe')
         .send({ email: 'node@test.com', firstName: 'node', lastName: 'test', password: 'n0d3jst3s!'})
 
-      expect(res.status).toEqual(200)
+      expect(res.status).toEqual(201)
       expect(res.body.data).toBeDefined()
     })
     test('Should fail because email already exists (400)', async () => {
@@ -37,7 +37,7 @@ describe('NodeJS Tests', () => {
         .post('/subscribe')
         .send({ email: 'friend@test.com', firstName: 'friend', lastName: 'test', password: 'n0d3jst3s!'})
 
-      expect(res.status).toEqual(200)
+      expect(res.status).toEqual(201)
       expect(res.body.data).toBeDefined()
     })
   })

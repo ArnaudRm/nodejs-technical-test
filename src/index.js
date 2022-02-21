@@ -1,12 +1,28 @@
-const http = require('http');
+const express = require("express");
+const app = express();
+const usersRoutes = require('./routes/users');
 
-const PORT = process.env.PORT || 8080;
+const port = process.env.PORT || 8000;
 
-const server = http.createServer((req, res) => {
-  console.log('Received an api call on', req.url)
-  res.writeHead(404, { 'Content-Type': 'application/json' })
-  res.end('{ "error": "Not implemented" }')
-}).listen(PORT)
-console.log('Server running at http://127.0.0.1:' + PORT)
+app.listen(port, () => {
+  console.log('Server app listening on port ' + port);
+});
 
-module.exports = server
+//Cors
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Origin, Content, Accept, Content-Type, Authorization"
+  );
+  res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+  );
+  next();
+});
+
+app.use(express.json());
+app.use('/', usersRoutes);
+
+module.exports = app;
