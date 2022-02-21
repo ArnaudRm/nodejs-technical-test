@@ -6,6 +6,7 @@ const {
     query,
     where,
 } = require('firebase/firestore');
+const {generateToken} = require('../utils');
 
 const subscribe = async (req, res) => {
     const {
@@ -15,11 +16,8 @@ const subscribe = async (req, res) => {
         lastName,
     } = req.body;
 
-    const usersRef = collection(db, 'users');
-    const q = query(usersRef, where("email", "==", email));
-    const snapshot = await getDocs(q);
-
-    if (snapshot.empty) {
+    const userExists = await userExistsByEmail(email);
+    if (!userExists) {
         try {
             const user = {
                 email,
@@ -27,7 +25,7 @@ const subscribe = async (req, res) => {
                 firstName,
                 lastName,
             };
-            await addDoc(usersRef, user);
+            await addDoc(collection(db, 'users'), user);
             delete user.password;
             res.status(201).json({data: user});
         } catch (e) {
@@ -38,6 +36,50 @@ const subscribe = async (req, res) => {
     }
 }
 
+const login = async (req, res) => {
+    try {
+        const {email, password} = req.body;
+
+        const userExists = await userExistsByEmail(email);
+        if (!userExists) {
+            res.status(400).json({error: 'This account doesn\'t exist.'});
+        }
+
+        // if user exists, check password matching
+        const userDoc = await getUserDocByEmail(email);
+        const user = userDoc.data();
+        const userId = userDoc.id;
+
+        if (password === user.password) {
+            return res.status(200).json({
+                authJWT: generateToken(userId)
+            });
+        }
+
+        res.status(401).json({error: 'Invalid credentials.'});
+    } catch (e) {
+        console.log({e})
+        res.status(500).json({error: e});
+    }
+}
+
+const userExistsByEmail = async (email) => {
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('email', '==', email));
+    const snapshot = await getDocs(q);
+
+    return !snapshot.empty;
+};
+
+const getUserDocByEmail = async (email) => {
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('email', '==', email));
+    const snapshot = await getDocs(q);
+
+    return snapshot.docs[0];
+};
+
 module.exports = {
-    subscribe
+    subscribe,
+    login,
 }
