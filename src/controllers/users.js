@@ -19,22 +19,22 @@ const subscribe = async (req, res) => {
     } = req.body;
 
     const userExists = await userExistsByEmail(email);
-    if (!userExists) {
-        try {
-            const user = {
-                email,
-                password,
-                firstName,
-                lastName,
-            };
-            await addDoc(collection(db, 'users'), user);
-            delete user.password;
-            res.status(201).json({data: user});
-        } catch (e) {
-            res.status(400).json({error: e});
-        }
-    } else {
+    if (userExists) {
         res.status(400).json({error: 'Email already exists'})
+    }
+
+    try {
+        const user = {
+            email,
+            password,
+            firstName,
+            lastName,
+        };
+        await addDoc(collection(db, 'users'), user);
+        delete user.password;
+        res.status(201).json({data: user});
+    } catch (e) {
+        res.status(400).json({error: e});
     }
 }
 
@@ -44,7 +44,7 @@ const login = async (req, res) => {
 
         const userExists = await userExistsByEmail(email);
         if (!userExists) {
-            res.status(400).json({error: 'This account doesn\'t exist.'});
+            return res.status(400).json({error: 'This account doesn\'t exist.'});
         }
 
         // if user exists, check password matching
@@ -52,16 +52,14 @@ const login = async (req, res) => {
         const user = userDoc.data();
         const userId = userDoc.id;
 
-        if (password === user.password) {
-            const data = {
-                authJWT: generateToken(userId),
-            };
-            return res.status(200).json({data});
+        if (password !== user.password) {
+            return res.status(401).json({error: 'Invalid credentials.'});
         }
 
-        res.status(401).json({error: 'Invalid credentials.'});
+        const data = {authJWT: generateToken(userId)};
+        res.status(200).json({data});
+
     } catch (e) {
-        console.log({e})
         res.status(500).json({error: e});
     }
 }
