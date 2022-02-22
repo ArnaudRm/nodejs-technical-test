@@ -4,7 +4,7 @@ const {
     addDoc,
     getDocs,
     query,
-    where,
+    where, getDoc, doc,
 } = require('firebase/firestore');
 const {generateToken} = require('../utils');
 
@@ -95,8 +95,14 @@ const getUserDocByEmail = async (email) => {
     return snapshot.docs[0];
 };
 
+const getUserById = async (uid) => {
+    const userSnapshot = await getDoc(doc(db, 'users', uid))
+    return userSnapshot.data();
+};
+
 module.exports = {
     subscribe,
     login,
     getUsers,
+    getUserById,
 }
