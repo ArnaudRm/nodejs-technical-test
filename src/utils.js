@@ -1,16 +1,18 @@
 const jwt = require('jsonwebtoken');
 const SECRET_KEY = 'Ch@nG3_mE';
 
-const checkToken = (req) => {
-    let token = req.headers['authorization']
-
-    if (!token) {
-        return false;
-    }
-    const tokenWithoutBearer = token.substring(7);
-    jwt.verify(tokenWithoutBearer, SECRET_KEY, (error, decoded) => {
-        console.log(decoded);
-        return !error;
+const checkToken =  (token) => {
+    return new Promise((resolve, reject) => {
+        if (!token) {
+            reject('Token is not present');
+        }
+        const tokenWithoutBearer = token.substring(7);
+        jwt.verify(tokenWithoutBearer, SECRET_KEY, (error,decoded) => {
+            if(error) {
+                reject(error);
+            }
+            resolve(decoded);
+        })
     })
 };
 

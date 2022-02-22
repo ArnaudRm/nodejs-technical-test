@@ -63,7 +63,21 @@ const login = async (req, res) => {
     }
 }
 
+const getUsers = async (req, res) => {
+
+    const usersSnapshot = await getDocs(collection(db, 'users'));
+    const usersDocsExceptCurrentUser =
+        usersSnapshot
+            .docs
+            .filter((doc) => doc.id !== req.body.userId);
+    const users = usersDocsExceptCurrentUser.map((doc) => doc.data())
+
+    res.status(200).send(users);
+}
+
+
 const userExistsByEmail = async (email) => {
+
     const usersRef = collection(db, 'users');
     const q = query(usersRef, where('email', '==', email));
     const snapshot = await getDocs(q);
@@ -72,6 +86,7 @@ const userExistsByEmail = async (email) => {
 };
 
 const getUserDocByEmail = async (email) => {
+
     const usersRef = collection(db, 'users');
     const q = query(usersRef, where('email', '==', email));
     const snapshot = await getDocs(q);
@@ -82,4 +97,5 @@ const getUserDocByEmail = async (email) => {
 module.exports = {
     subscribe,
     login,
+    getUsers,
 }
