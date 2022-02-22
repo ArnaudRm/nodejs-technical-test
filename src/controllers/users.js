@@ -51,9 +51,10 @@ const login = async (req, res) => {
         const userId = userDoc.id;
 
         if (password === user.password) {
-            return res.status(200).json({
-                authJWT: generateToken(userId)
-            });
+            const data = {
+                authJWT : generateToken(userId),
+            };
+            return res.status(200).json({data});
         }
 
         res.status(401).json({error: 'Invalid credentials.'});
@@ -71,8 +72,8 @@ const getUsers = async (req, res) => {
             .docs
             .filter((doc) => doc.id !== req.body.userId);
     const users = usersDocsExceptCurrentUser.map((doc) => doc.data())
-
-    res.status(200).send(users);
+    const data = {users};
+    res.status(200).send({data});
 }
 
 
