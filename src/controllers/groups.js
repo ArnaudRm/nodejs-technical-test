@@ -10,7 +10,11 @@ const {
     where,
     documentId,
 } = require('firebase/firestore');
-const {getUserById, getUserDocByEmail} = require('./users');
+const {
+    getUserById,
+    getUserDocByEmail,
+    userExistsByEmail,
+} = require('./users');
 
 const getGroups = async (req, res) => {
 
@@ -46,41 +50,32 @@ const createGroup = async (req, res) => {
 
 const inviteToGroup = async (req, res) => {
 
-    //TODO check if user exists
-
-
-    // TODO Prevent inviting self
-
-
     const {email} = req.body;
     const {groupId} = req.params;
 
-    const invitedUserDoc = await getUserDocByEmail(email);
+    //Check if user with given email exists
+    // TODO REFACTOR : maybe create a middleware that takes care of checking this for all concerned routes
+    const userExists = await userExistsByEmail(email);
+    if (!userExists) {
+        return res.status(400).json({error: 'User does not exist'});
+    }
 
-    //console.log({email})
+    const invitedUserDoc = await getUserDocByEmail(email);
 
     const groupRef = doc(db, 'groups', groupId);
     const groupDoc = await getDoc(groupRef);
-
-    // console.log({invitedUserDoc});
-    // console.log(groupDoc.data());
-
     const actualGroupUsers = groupDoc.data().users
 
-    const newGroupUsers = {
+    const updatedGroupUsers = {
         ...actualGroupUsers,
         [invitedUserDoc.id]: true,
     }
 
     await updateDoc(groupRef, {
-        users: newGroupUsers
+        users: updatedGroupUsers
     });
 
-
-    //TODO GET GROUP USERS DATA
-
     const users = await getGroupUsers(groupId);
-    console.log({users});
 
     const data = {
         groups: [

@@ -106,4 +106,5 @@ module.exports = {
     getUsers,
     getUserById,
     getUserDocByEmail,
+    userExistsByEmail,
 }
