@@ -4,12 +4,13 @@ const {
     getDocs,
     getDoc,
     addDoc,
+    updateDoc,
     doc,
     query,
     where,
     documentId,
 } = require('firebase/firestore');
-const {getUserById} = require('./users');
+const {getUserById, getUserDocByEmail} = require('./users');
 
 const getGroups = async (req, res) => {
 
@@ -43,15 +44,73 @@ const createGroup = async (req, res) => {
     res.status(201).json({data});
 }
 
+const inviteToGroup = async (req, res) => {
+
+    //TODO check if user exists
+
+
+    // TODO Prevent inviting self
+
+
+    const {email} = req.body;
+    const {groupId} = req.params;
+
+    const invitedUserDoc = await getUserDocByEmail(email);
+
+    //console.log({email})
+
+    const groupRef = doc(db, 'groups', groupId);
+    const groupDoc = await getDoc(groupRef);
+
+    // console.log({invitedUserDoc});
+    // console.log(groupDoc.data());
+
+    const actualGroupUsers = groupDoc.data().users
+
+    const newGroupUsers = {
+        ...actualGroupUsers,
+        [invitedUserDoc.id]: true,
+    }
+
+    await updateDoc(groupRef, {
+        users: newGroupUsers
+    });
+
+
+    //TODO GET GROUP USERS DATA
+
+    const users = await getGroupUsers(groupId);
+    console.log({users});
+
+    const data = {
+        groups: [
+            {
+                name: groupDoc.data().name,
+                users,
+            }
+        ]
+    }
+    res.status(200).json({data});
+}
+
+const getLatestGroup = async (req, res) => {
+    const groupSnapshot = await getDocs(collection(db, 'groups'));
+    const latestGroup = groupSnapshot.docs[0]
+
+    res.status(200).send({groupId: latestGroup.id});
+}
+
 const getGroupUsers = async (groupId) => {
 
     // get group by group Id
     const groupSnapshot = await getDoc(doc(db, 'groups', groupId))
-    const usersIds = groupSnapshot.data().users;
+    const groupData = groupSnapshot.data();
+
+    const arrayUsersIds = Object.keys(groupData.users);
 
     // we get all users which ids are contained in group users array
     const usersRef = collection(db, 'users');
-    const q = query(usersRef, where(documentId(), 'in', usersIds));
+    const q = query(usersRef, where(documentId(), 'in', arrayUsersIds));
     const usersSnapshot = await getDocs(q);
     const usersDocs = usersSnapshot.docs;
 
@@ -62,4 +121,6 @@ const getGroupUsers = async (groupId) => {
 module.exports = {
     getGroups,
     createGroup,
+    inviteToGroup,
+    getLatestGroup,
 }

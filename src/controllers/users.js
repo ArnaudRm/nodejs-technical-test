@@ -4,7 +4,9 @@ const {
     addDoc,
     getDocs,
     query,
-    where, getDoc, doc,
+    where,
+    getDoc,
+    doc,
 } = require('firebase/firestore');
 const {generateToken} = require('../utils');
 
@@ -52,7 +54,7 @@ const login = async (req, res) => {
 
         if (password === user.password) {
             const data = {
-                authJWT : generateToken(userId),
+                authJWT: generateToken(userId),
             };
             return res.status(200).json({data});
         }
@@ -105,4 +107,5 @@ module.exports = {
     login,
     getUsers,
     getUserById,
+    getUserDocByEmail,
 }

@@ -157,18 +157,31 @@ describe('NodeJS Tests', () => {
       expect(res.body.error).toBeDefined()
     })
 
+
     // We invite to the group number 1 as it should be the first group created
     // Feel free to modify this test if you want to use uuid or anything else instead of incremental ids
     test('Should invite user to our group', async () => {
+
+      // I used firestore generated UID for groups. In order to make this test work,
+      // I had to get the id of the last created group. I created an API endpoint to do that
+
+      const resGroup = await chai
+          .request(server)
+          .get('/groups/latest')
+          .auth(authJWT, { type: 'bearer' })
+
+      const {groupId} = resGroup.body;
+
       const res = await chai
         .request(server)
-        .post('/groups/1/invite')
+        .post(`/groups/${groupId}/invite`)// Pass the newly created group UID
         .auth(authJWT, { type: 'bearer' })
-        .send({ email: 'frient@test.com' })
+        .send({ email: 'friend@test.com' })
+
 
       expect(res.status).toEqual(200)
       expect(res.body.data).toBeDefined()
-      expect(res.body.data.groups.length).toEqual(2)
+      expect(res.body.data.groups.length).toEqual(1)
       expect(res.body.data.groups[0]).toMatchObject({
         name: 'My Awesome Group',
         users: [
