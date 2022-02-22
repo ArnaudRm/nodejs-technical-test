@@ -124,14 +124,14 @@ describe('NodeJS Tests', () => {
       expect(res.body.error).toBeDefined()
     })
 
-    test('Should create a new group and return it with current user in it (200)', async () => {
+    test('Should create a new group and return it with current user in it (201)', async () => {
       const res = await chai
         .request(server)
         .post('/groups')
         .auth(authJWT, { type: 'bearer' })
         .send({ name: 'My Awesome Group' })
 
-      expect(res.status).toEqual(200)
+      expect(res.status).toEqual(201)
       expect(res.body.data).toBeDefined()
       expect(res.body.data.groups.length).toEqual(1)
       expect(res.body.data.groups[0]).toMatchObject({

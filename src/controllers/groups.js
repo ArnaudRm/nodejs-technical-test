@@ -9,7 +9,7 @@ const {
     where,
     documentId,
 } = require('firebase/firestore');
-const {getUserById} = require ('./users');
+const {getUserById} = require('./users');
 
 const getGroups = async (req, res) => {
 
@@ -27,14 +27,18 @@ const createGroup = async (req, res) => {
         name,
         // We store user a list of user ids instead of whole user data, for performance and future scalability
         // See https://firebase.google.com/docs/database/web/structure-data
-        users: {[userId] :true }
+        users: {[userId]: true}
     });
 
     // Getting user data via his id
     const user = await getUserById(userId);
     const data = {
-        name,
-        users: [user]
+        groups: [
+            {
+                name,
+                users: [user]
+            }
+        ]
     }
     res.status(201).json({data});
 }
