@@ -13,8 +13,7 @@ const {
 const {
     getUserById,
     getUserDocByEmail,
-    userExistsByEmail,
-} = require('./users');
+} = require('../helpers');
 
 const getGroups = async (req, res) => {
 

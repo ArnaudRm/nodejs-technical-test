@@ -1,4 +1,4 @@
-const {checkToken} = require('../utils');
+const {checkToken} = require('../helpers/jwt');
 
 const authMiddleware = (req, res, next) => {
     try {

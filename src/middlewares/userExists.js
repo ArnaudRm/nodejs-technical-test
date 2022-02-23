@@ -1,4 +1,4 @@
-const {userExistsByEmail} = require('../controllers/users');
+const {userExistsByEmail} = require('../helpers');
 
 const userExistsMiddleware = async (req, res, next) => {
     try {

@@ -3,12 +3,9 @@ const {
     collection,
     addDoc,
     getDocs,
-    query,
-    where,
-    getDoc,
-    doc,
 } = require('firebase/firestore');
-const {generateToken} = require('../utils');
+const {userExistsByEmail, getUserDocByEmail} = require('../helpers');
+const {generateToken} = require('../helpers/jwt');
 
 const subscribe = async (req, res) => {
     const {
@@ -70,35 +67,8 @@ const getUsers = async (req, res) => {
     res.status(200).send({data});
 }
 
-
-const userExistsByEmail = async (email) => {
-
-    const usersRef = collection(db, 'users');
-    const q = query(usersRef, where('email', '==', email));
-    const snapshot = await getDocs(q);
-
-    return !snapshot.empty;
-};
-
-const getUserDocByEmail = async (email) => {
-
-    const usersRef = collection(db, 'users');
-    const q = query(usersRef, where('email', '==', email));
-    const snapshot = await getDocs(q);
-
-    return snapshot.docs[0];
-};
-
-const getUserById = async (uid) => {
-    const userSnapshot = await getDoc(doc(db, 'users', uid))
-    return userSnapshot.data();
-};
-
 module.exports = {
     subscribe,
     login,
     getUsers,
-    getUserById,
-    getUserDocByEmail,
-    userExistsByEmail,
 }
