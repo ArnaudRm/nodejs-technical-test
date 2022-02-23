@@ -20,7 +20,7 @@ const subscribe = async (req, res) => {
 
     const userExists = await userExistsByEmail(email);
     if (userExists) {
-        res.status(400).json({error: 'Email already exists'})
+        return res.status(400).json({error: 'Email already exists'})
     }
 
     try {
