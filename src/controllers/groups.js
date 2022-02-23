@@ -66,6 +66,10 @@ const inviteToGroup = async (req, res) => {
     });
 
     const users = await getGroupUsers(groupId);
+    //Sort array to pass last test (toMatchObject compares position of objects in array)
+    // And because of generated uid, the two users are not in the same index of array each time
+
+    users.sort((a, b) => a.firstName.localeCompare(b.firstName)).reverse();
 
     const data = {
         groups: [
