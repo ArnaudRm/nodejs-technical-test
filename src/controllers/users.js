@@ -42,12 +42,6 @@ const login = async (req, res) => {
     try {
         const {email, password} = req.body;
 
-        const userExists = await userExistsByEmail(email);
-        if (!userExists) {
-            return res.status(400).json({error: 'This account doesn\'t exist.'});
-        }
-
-        // if user exists, check password matching
         const userDoc = await getUserDocByEmail(email);
         const user = userDoc.data();
         const userId = userDoc.id;

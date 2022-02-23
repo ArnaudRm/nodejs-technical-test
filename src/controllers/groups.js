@@ -50,18 +50,9 @@ const createGroup = async (req, res) => {
 
 const inviteToGroup = async (req, res) => {
 
-    const {email} = req.body;
     const {groupId} = req.params;
 
-    //Check if user with given email exists
-    // TODO REFACTOR : maybe create a middleware that takes care of checking this for all concerned routes
-    const userExists = await userExistsByEmail(email);
-    if (!userExists) {
-        return res.status(400).json({error: 'User does not exist'});
-    }
-
-    const invitedUserDoc = await getUserDocByEmail(email);
-
+    const invitedUserDoc = await getUserDocByEmail(req.body.email);
     const groupRef = doc(db, 'groups', groupId);
     const groupDoc = await getDoc(groupRef);
     const actualGroupUsers = groupDoc.data().users
