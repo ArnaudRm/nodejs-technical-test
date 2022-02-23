@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const usersRoutes = require('./routes/users');
 const groupsRoutes = require('./routes/groups');
+const authRoutes = require('./routes/authentication');
 
 const port = process.env.PORT || 8000;
 
@@ -26,5 +27,6 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use('/groups', groupsRoutes);
 app.use('/', usersRoutes);
+app.use('/', authRoutes);
 
 module.exports = app;
